@@ -1,6 +1,9 @@
 language: java
 sudo: false # faster builds
 
+arch: 
+  - amd64
+  - arm64
 jdk:
   - openjdk11
   - openjdk8
@@ -12,6 +15,12 @@ cache:
 install: true
 
 script:
+  - if [ "${TRAVIS_CPU_ARCH}" == "arm64" ]; then
+     sudo apt-get install openjdk-8-jdk;
+     export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-arm64/;
+     export PATH=$JAVA_HOME:$PATH;
+     iptables -A INPUT -i docker0 -j ACCEPT;
+   fi
   - rm -rf $HOME/.m2/repository/org/glassfish/javax.el/3.0.1-b08
   - travis_wait 30 ./mvnw --batch-mode --no-transfer-progress clean install -DskipTests=false -DskipIntegrationTests=false -Dcheckstyle.skip=false -Drat.skip=false -Dmaven.javadoc.skip=true
 
